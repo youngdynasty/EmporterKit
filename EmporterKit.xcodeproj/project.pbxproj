@@ -1,0 +1,575 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A6FD178C224AB39800F3CB9B /* EmporterKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A6FD178B224AB39800F3CB9B /* EmporterKitTests.m */; };
+		A6FD178E224AB39800F3CB9B /* libEmporterKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A6FD1774224AB1DA00F3CB9B /* libEmporterKit.a */; };
+		A6FD1794224AB42F00F3CB9B /* Emporter.m in Sources */ = {isa = PBXBuildFile; fileRef = A6FD1783224AB35900F3CB9B /* Emporter.m */; };
+		A6FD17A5224AB49700F3CB9B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A6FD17A4224AB49700F3CB9B /* main.m */; };
+		A6FD17AF224AB91300F3CB9B /* ApplicationLauncher.h in Headers */ = {isa = PBXBuildFile; fileRef = A6FD17AD224AB91300F3CB9B /* ApplicationLauncher.h */; };
+		A6FD17B0224AB91300F3CB9B /* ApplicationLauncher.m in Sources */ = {isa = PBXBuildFile; fileRef = A6FD17AE224AB91300F3CB9B /* ApplicationLauncher.m */; };
+		A6FD17B5224ABDE800F3CB9B /* libEmporterKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A6FD1774224AB1DA00F3CB9B /* libEmporterKit.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A6FD178F224AB39800F3CB9B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A6FD176C224AB1DA00F3CB9B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A6FD1773224AB1DA00F3CB9B;
+			remoteInfo = EmporterKit;
+		};
+		A6FD17AB224AB6C900F3CB9B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A6FD176C224AB1DA00F3CB9B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A6FD1798224AB49500F3CB9B;
+			remoteInfo = EmporterKitTestHost;
+		};
+		A6FD17B2224ABDE200F3CB9B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A6FD176C224AB1DA00F3CB9B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A6FD1773224AB1DA00F3CB9B;
+			remoteInfo = EmporterKit;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A6FD1774224AB1DA00F3CB9B /* libEmporterKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libEmporterKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A6FD1781224AB35900F3CB9B /* Emporter-Bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Emporter-Bridge.h"; sourceTree = "<group>"; };
+		A6FD1782224AB35900F3CB9B /* Emporter-Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Emporter-Private.h"; sourceTree = "<group>"; };
+		A6FD1783224AB35900F3CB9B /* Emporter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Emporter.m; sourceTree = "<group>"; };
+		A6FD1784224AB35900F3CB9B /* Emporter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Emporter.h; sourceTree = "<group>"; };
+		A6FD1789224AB39800F3CB9B /* EmporterKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EmporterKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A6FD178B224AB39800F3CB9B /* EmporterKitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EmporterKitTests.m; sourceTree = "<group>"; };
+		A6FD178D224AB39800F3CB9B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A6FD1799224AB49500F3CB9B /* EmporterKitTestHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EmporterKitTestHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A6FD17A3224AB49700F3CB9B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A6FD17A4224AB49700F3CB9B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		A6FD17A6224AB49700F3CB9B /* EmporterKitTestHost.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EmporterKitTestHost.entitlements; sourceTree = "<group>"; };
+		A6FD17AD224AB91300F3CB9B /* ApplicationLauncher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ApplicationLauncher.h; sourceTree = "<group>"; };
+		A6FD17AE224AB91300F3CB9B /* ApplicationLauncher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ApplicationLauncher.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A6FD1772224AB1DA00F3CB9B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6FD1786224AB39800F3CB9B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6FD178E224AB39800F3CB9B /* libEmporterKit.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6FD1796224AB49500F3CB9B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6FD17B5224ABDE800F3CB9B /* libEmporterKit.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A6FD176B224AB1DA00F3CB9B = {
+			isa = PBXGroup;
+			children = (
+				A6FD1780224AB35900F3CB9B /* EmporterKit */,
+				A6FD179A224AB49500F3CB9B /* EmporterKitTestHost */,
+				A6FD178A224AB39800F3CB9B /* EmporterKitTests */,
+				A6FD1775224AB1DA00F3CB9B /* Products */,
+				A6FD17B4224ABDE800F3CB9B /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		A6FD1775224AB1DA00F3CB9B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A6FD1774224AB1DA00F3CB9B /* libEmporterKit.a */,
+				A6FD1789224AB39800F3CB9B /* EmporterKitTests.xctest */,
+				A6FD1799224AB49500F3CB9B /* EmporterKitTestHost.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A6FD1780224AB35900F3CB9B /* EmporterKit */ = {
+			isa = PBXGroup;
+			children = (
+				A6FD17AD224AB91300F3CB9B /* ApplicationLauncher.h */,
+				A6FD17AE224AB91300F3CB9B /* ApplicationLauncher.m */,
+				A6FD1781224AB35900F3CB9B /* Emporter-Bridge.h */,
+				A6FD1782224AB35900F3CB9B /* Emporter-Private.h */,
+				A6FD1784224AB35900F3CB9B /* Emporter.h */,
+				A6FD1783224AB35900F3CB9B /* Emporter.m */,
+			);
+			path = EmporterKit;
+			sourceTree = "<group>";
+		};
+		A6FD178A224AB39800F3CB9B /* EmporterKitTests */ = {
+			isa = PBXGroup;
+			children = (
+				A6FD178B224AB39800F3CB9B /* EmporterKitTests.m */,
+				A6FD178D224AB39800F3CB9B /* Info.plist */,
+			);
+			path = EmporterKitTests;
+			sourceTree = "<group>";
+		};
+		A6FD179A224AB49500F3CB9B /* EmporterKitTestHost */ = {
+			isa = PBXGroup;
+			children = (
+				A6FD17A3224AB49700F3CB9B /* Info.plist */,
+				A6FD17A4224AB49700F3CB9B /* main.m */,
+				A6FD17A6224AB49700F3CB9B /* EmporterKitTestHost.entitlements */,
+			);
+			path = EmporterKitTestHost;
+			sourceTree = "<group>";
+		};
+		A6FD17B4224ABDE800F3CB9B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		A6FD1770224AB1DA00F3CB9B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6FD17AF224AB91300F3CB9B /* ApplicationLauncher.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		A6FD1773224AB1DA00F3CB9B /* EmporterKit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6FD177D224AB1DA00F3CB9B /* Build configuration list for PBXNativeTarget "EmporterKit" */;
+			buildPhases = (
+				A6FD1770224AB1DA00F3CB9B /* Headers */,
+				A6FD1771224AB1DA00F3CB9B /* Sources */,
+				A6FD1772224AB1DA00F3CB9B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EmporterKit;
+			productName = EmporterKit;
+			productReference = A6FD1774224AB1DA00F3CB9B /* libEmporterKit.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		A6FD1788224AB39800F3CB9B /* EmporterKitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6FD1791224AB39800F3CB9B /* Build configuration list for PBXNativeTarget "EmporterKitTests" */;
+			buildPhases = (
+				A6FD1785224AB39800F3CB9B /* Sources */,
+				A6FD1786224AB39800F3CB9B /* Frameworks */,
+				A6FD1787224AB39800F3CB9B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A6FD1790224AB39800F3CB9B /* PBXTargetDependency */,
+				A6FD17AC224AB6C900F3CB9B /* PBXTargetDependency */,
+			);
+			name = EmporterKitTests;
+			productName = EmporterKitTests;
+			productReference = A6FD1789224AB39800F3CB9B /* EmporterKitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A6FD1798224AB49500F3CB9B /* EmporterKitTestHost */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6FD17A7224AB49700F3CB9B /* Build configuration list for PBXNativeTarget "EmporterKitTestHost" */;
+			buildPhases = (
+				A6FD1795224AB49500F3CB9B /* Sources */,
+				A6FD1796224AB49500F3CB9B /* Frameworks */,
+				A6FD1797224AB49500F3CB9B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A6FD17B3224ABDE200F3CB9B /* PBXTargetDependency */,
+			);
+			name = EmporterKitTestHost;
+			productName = EmporterKitTestHost;
+			productReference = A6FD1799224AB49500F3CB9B /* EmporterKitTestHost.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A6FD176C224AB1DA00F3CB9B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = "Young Dynasty";
+				TargetAttributes = {
+					A6FD1773224AB1DA00F3CB9B = {
+						CreatedOnToolsVersion = 10.1;
+					};
+					A6FD1788224AB39800F3CB9B = {
+						CreatedOnToolsVersion = 10.1;
+						TestTargetID = A6FD1798224AB49500F3CB9B;
+					};
+					A6FD1798224AB49500F3CB9B = {
+						CreatedOnToolsVersion = 10.1;
+					};
+				};
+			};
+			buildConfigurationList = A6FD176F224AB1DA00F3CB9B /* Build configuration list for PBXProject "EmporterKit" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A6FD176B224AB1DA00F3CB9B;
+			productRefGroup = A6FD1775224AB1DA00F3CB9B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A6FD1773224AB1DA00F3CB9B /* EmporterKit */,
+				A6FD1788224AB39800F3CB9B /* EmporterKitTests */,
+				A6FD1798224AB49500F3CB9B /* EmporterKitTestHost */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A6FD1787224AB39800F3CB9B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6FD1797224AB49500F3CB9B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A6FD1771224AB1DA00F3CB9B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6FD17B0224AB91300F3CB9B /* ApplicationLauncher.m in Sources */,
+				A6FD1794224AB42F00F3CB9B /* Emporter.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6FD1785224AB39800F3CB9B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6FD178C224AB39800F3CB9B /* EmporterKitTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6FD1795224AB49500F3CB9B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6FD17A5224AB49700F3CB9B /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A6FD1790224AB39800F3CB9B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A6FD1773224AB1DA00F3CB9B /* EmporterKit */;
+			targetProxy = A6FD178F224AB39800F3CB9B /* PBXContainerItemProxy */;
+		};
+		A6FD17AC224AB6C900F3CB9B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A6FD1798224AB49500F3CB9B /* EmporterKitTestHost */;
+			targetProxy = A6FD17AB224AB6C900F3CB9B /* PBXContainerItemProxy */;
+		};
+		A6FD17B3224ABDE200F3CB9B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A6FD1773224AB1DA00F3CB9B /* EmporterKit */;
+			targetProxy = A6FD17B2224ABDE200F3CB9B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A6FD177B224AB1DA00F3CB9B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A6FD177C224AB1DA00F3CB9B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		A6FD177E224AB1DA00F3CB9B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = EEQTQC5N2L;
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		A6FD177F224AB1DA00F3CB9B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = EEQTQC5N2L;
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		A6FD1792224AB39800F3CB9B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = EEQTQC5N2L;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				INFOPLIST_FILE = EmporterKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.youngdynasty.EmporterKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EmporterKitTestHost.app/Contents/MacOS/EmporterKitTestHost";
+			};
+			name = Debug;
+		};
+		A6FD1793224AB39800F3CB9B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = EEQTQC5N2L;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				INFOPLIST_FILE = EmporterKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.youngdynasty.EmporterKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EmporterKitTestHost.app/Contents/MacOS/EmporterKitTestHost";
+			};
+			name = Release;
+		};
+		A6FD17A8224AB49700F3CB9B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = EmporterKitTestHost/EmporterKitTestHost.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = EEQTQC5N2L;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				INFOPLIST_FILE = EmporterKitTestHost/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.youngdynasty.EmporterKitTestHost;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A6FD17A9224AB49700F3CB9B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = EmporterKitTestHost/EmporterKitTestHost.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = EEQTQC5N2L;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				INFOPLIST_FILE = EmporterKitTestHost/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.youngdynasty.EmporterKitTestHost;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A6FD176F224AB1DA00F3CB9B /* Build configuration list for PBXProject "EmporterKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A6FD177B224AB1DA00F3CB9B /* Debug */,
+				A6FD177C224AB1DA00F3CB9B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6FD177D224AB1DA00F3CB9B /* Build configuration list for PBXNativeTarget "EmporterKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A6FD177E224AB1DA00F3CB9B /* Debug */,
+				A6FD177F224AB1DA00F3CB9B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6FD1791224AB39800F3CB9B /* Build configuration list for PBXNativeTarget "EmporterKitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A6FD1792224AB39800F3CB9B /* Debug */,
+				A6FD1793224AB39800F3CB9B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6FD17A7224AB49700F3CB9B /* Build configuration list for PBXNativeTarget "EmporterKitTestHost" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A6FD17A8224AB49700F3CB9B /* Debug */,
+				A6FD17A9224AB49700F3CB9B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A6FD176C224AB1DA00F3CB9B /* Project object */;
+}
