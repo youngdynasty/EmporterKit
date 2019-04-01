@@ -162,7 +162,7 @@ static NSURL *_fixedBundleURL = nil;
     NSPredicate *filter = nil;
     
     if ([url isFileURL]) {
-        filter = [NSPredicate predicateWithFormat:@"directoryPath == %@", url.URLByStandardizingPath.path];
+        filter = [NSPredicate predicateWithFormat:@"directory == %@", url.URLByStandardizingPath];
     } else {
         NSPredicate *portFilter = [NSPredicate predicateWithFormat:@"proxyPort == %@", url.port];
         NSPredicate *hostFilter = nil;
