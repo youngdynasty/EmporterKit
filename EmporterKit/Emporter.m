@@ -6,6 +6,8 @@
 //  Copyright © 2019 Young Dynasty. All rights reserved.
 //
 
+#import <Carbon/Carbon.h>
+
 #import "Emporter.h"
 #import "Emporter-Private.h"
 #import "ApplicationLauncher.h"
@@ -21,17 +23,7 @@ NSString *const EmporterTunnelIdentifierUserInfoKey = @"EmporterTunnelIdentifier
 @synthesize bundleURL = _bundleURL;
 
 + (BOOL)isInstalled {
-    NSURL *bundleURL = [self _bundleURL];
-    if (bundleURL == nil) {
-        return NO;
-    }
-    
-    NSBundle *bundle = [NSBundle bundleWithURL:bundleURL];
-    if (bundle == nil || bundle.bundleIdentifier == nil) {
-        return NO;
-    }
-    
-    return [[self _bundleIds] containsObject:bundle.bundleIdentifier];
+    return [self _bundleIdentifier] != nil;
 }
 
 + (NSURL *)appStoreURL {
@@ -76,6 +68,20 @@ static NSURL *_fixedBundleURL = nil;
     return nil;
 }
 
++ (NSString *)_bundleIdentifier {
+    NSURL *bundleURL = [self _bundleURL];
+    if (bundleURL == nil) {
+        return nil;
+    }
+    
+    NSBundle *bundle = [NSBundle bundleWithURL:bundleURL];
+    if (bundle == nil || bundle.bundleIdentifier == nil) {
+        return nil;
+    }
+    
+    return [[self _bundleIds] containsObject:bundle.bundleIdentifier] ? bundle.bundleIdentifier : nil;
+}
+
 + (NSArray <NSRunningApplication *> *)_runningApplications {
     NSMutableArray *apps = [NSMutableArray array];
     
@@ -90,7 +96,8 @@ static NSURL *_fixedBundleURL = nil;
 
 - (instancetype)init {
     NSURL *bundleURL = [Emporter _bundleURL];
-    if (bundleURL == nil)
+    NSString *bundleIdentifier = [Emporter _bundleIdentifier];
+    if (bundleURL == nil || bundleIdentifier == nil)
         return nil;
     
     EmporterApplication *application = [SBApplication applicationWithURL:bundleURL];
@@ -103,6 +110,7 @@ static NSURL *_fixedBundleURL = nil;
     
     _application = application;
     _bundleURL = bundleURL;
+    _bundleIdentifier = bundleIdentifier;
     
     for (NSNotificationName name in @[EmporterServiceStateDidChangeNotification, EmporterTunnelStateDidChangeNotification, EmporterTunnelConfigurationDidChangeNotification]) {
         [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(_dispatchNotification:) name:name object:nil];
@@ -125,6 +133,41 @@ static NSURL *_fixedBundleURL = nil;
 
 - (BOOL)isRunning {
     return [_application isRunning];
+}
+
+- (void)determineUserConsentWithPrompt:(BOOL)allowPrompt completionHandler:(void (^)(EmporterUserConsentType))completionHandler {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        EmporterUserConsentType userConsentType = [self _determineUserConsentTypeWithPrompt:YES];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionHandler(userConsentType);
+        });
+    });
+}
+
+- (EmporterUserConsentType)_determineUserConsentTypeWithPrompt:(BOOL)prompt {
+    if (@available(macOS 10.14, *)) {
+        if (![self isRunning]) {
+            return EmporterUserConsentTypeUnknown;
+        }
+        
+        NSAppleEventDescriptor *emporterAppDescriptor = [NSAppleEventDescriptor descriptorWithBundleIdentifier:_bundleIdentifier];
+        OSStatus status = AEDeterminePermissionToAutomateTarget(emporterAppDescriptor.aeDesc, typeWildCard, typeWildCard, prompt);
+        
+        switch (status) {
+            case errAEEventNotPermitted:
+                return EmporterUserConsentTypeDenied;
+            case -1744 /*errAEEventWouldRequireUserConsent*/:
+                return EmporterUserConsentTypeRequired;
+            case noErr:
+                return EmporterUserConsentTypeGranted;
+            default: {
+                return EmporterUserConsentTypeUnknown;
+            }
+        }
+    } else {
+        return EmporterUserConsentTypeGranted;
+    }
 }
 
 - (void)launchInBackgroundWithCompletionHandler:(void (^)(NSError *))completionHandler {

@@ -52,6 +52,41 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) NSURL *bundleURL;
 
 /*!
+ The bundle identifier of Emporter.
+ 
+ \returns The bundle identifier of Emporter.
+ */
+@property (readonly) NSString *bundleIdentifier;
+
+/*!
+ User consent may be required to before Emporter data can be accessed.
+ */
+typedef NS_OPTIONS(NSUInteger, EmporterUserConsentType) {
+    /*! Consent state is not known (is Emporter running?) */
+    EmporterUserConsentTypeUnknown,
+    
+    /*! Consent is required before Emporter data can be accessed. */
+    EmporterUserConsentTypeRequired,
+    
+    /*! Consent has been granted. */
+    EmporterUserConsentTypeGranted,
+    
+    /*! Consent has been denied. */
+    EmporterUserConsentTypeDenied
+};
+
+/*!
+ Determine the user's consent to access Emporter data with an optional prompt.
+ 
+ Emporter must be running in order to prompt and/or determine the user's consent. This method will always return
+ \c EmporterUserConsentTypeGranted when running macOS versions older than 10.14.
+ 
+ \param allowPrompt If true, the user will be prompted (at most once) for consent as needed.
+ \param completionHandler Invoked on the main queue once the user has approved or denied access to control Emporter.
+ */
+- (void)determineUserConsentWithPrompt:(BOOL)allowPrompt completionHandler:(void(^)(EmporterUserConsentType))completionHandler;
+
+/*!
  Activate the current running instance of Emporter.
  */
 - (void)activate;
