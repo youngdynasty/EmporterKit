@@ -136,19 +136,22 @@ extern NSString *const EmporterTunnelIdentifierUserInfoKey;
  Find a tunnel to a directory or local HTTP URL.
  
  \param url A file or local HTTP URL.
+ \param outError An optional error pointer if there was a problem interfacing with Emporter.
  
  \returns The tunnel whose source matches the given URL. May be nil.
  */
 
-- (EmporterTunnel *__nullable)tunnelForURL:(NSURL *)url;
+- (EmporterTunnel *__nullable)tunnelForURL:(NSURL *)url error:(NSError **__nullable)outError;
 
 /*!
  Find a tunnel by id.
  
+ \param outError An optional error pointer if there was a problem interfacing with Emporter.
+ 
  \returns The tunnel with the given id. May be nil.
  */
 
-- (EmporterTunnel *__nullable)tunnelWithIdentifier:(NSString *)identifer;
+- (EmporterTunnel *__nullable)tunnelWithIdentifier:(NSString *)identifer error:(NSError **__nullable)outError;
 
 /*!
  Create a tunnel to a directory or local HTTP server.
@@ -164,10 +167,11 @@ extern NSString *const EmporterTunnelIdentifierUserInfoKey;
 /*! Configure a tunnel to a directory or local HTTP server by either showing its existing configuration or prompting the user to configure a new tunnel.
  
  \param url The source directory or HTTP URL used to provide contents for the tunnel.
+ \param outError An optional error pointer if there was a problem interfacing with Emporter.
  
  \returns An existing tunnel or nil.
  */
-- (EmporterTunnel *__nullable)configureTunnelWithURL:(NSURL *)url;
+- (EmporterTunnel *__nullable)configureTunnelWithURL:(NSURL *)url error:(NSError **__nullable)outError;
 
 #pragma mark - Service
 
@@ -197,15 +201,21 @@ extern NSNotificationName EmporterServiceStateDidChangeNotification;
  Resume the connection to the service.
  
  The service may not be resumed if there are no tunnels configured. Tunnels will become accessible after the service connects.
+
+ \param outError An optional error pointer if there was a problem interfacing with Emporter.
+
+ \returns True if the service was successfully resumed.
  */
-- (void)resumeService;
+- (BOOL)resumeService:(NSError **__nullable)outError;
 
 /*!
  Suspend the connection to the service.
  
  All tunnels will be taken offline immediately.
+
+ \returns True if the service was successfully suspended.
  */
-- (void)suspendService;
+- (BOOL)suspendService:(NSError **__nullable)outError;
 
 @end
 

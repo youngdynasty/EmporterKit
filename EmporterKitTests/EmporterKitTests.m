@@ -94,19 +94,19 @@
     EmporterTunnel *tunnel2 = [emporter createTunnelWithURL:localURL2 properties:nil error:NULL];
     EmporterTunnel *resolvedTunnel = nil;
     
-    resolvedTunnel = [emporter tunnelForURL:localURL];
+    resolvedTunnel = [emporter tunnelForURL:localURL error:NULL];
     XCTAssertNotNil(resolvedTunnel, "expected resolved tunnel %@", tunnel.proxyHostHeader);
     XCTAssertEqualObjects(tunnel.id, resolvedTunnel.id, "expected resolved tunnel to match original");
     
-    resolvedTunnel = [emporter tunnelForURL:localURL2];
+    resolvedTunnel = [emporter tunnelForURL:localURL2 error:NULL];
     XCTAssertNotNil(resolvedTunnel, "expected resolved tunnel '%@'", tunnel2.proxyHostHeader);
     XCTAssertEqualObjects(tunnel2.id, resolvedTunnel.id, "expected resolved tunnel to match original");
 
-    resolvedTunnel = [emporter tunnelForURL:[NSURL URLWithString:@"http://127.0.0.1:2019"]];
+    resolvedTunnel = [emporter tunnelForURL:[NSURL URLWithString:@"http://127.0.0.1:2019"] error:NULL];
     XCTAssertNotNil(resolvedTunnel, "expected resolved tunnel");
     XCTAssertEqualObjects(tunnel2.id, resolvedTunnel.id, "expected resolved tunnel to match original");
 
-    resolvedTunnel = [emporter tunnelForURL:[NSURL URLWithString:@"http://virtual-host-not-found:2019"]];
+    resolvedTunnel = [emporter tunnelForURL:[NSURL URLWithString:@"http://virtual-host-not-found:2019"] error:NULL];
     XCTAssertNil(resolvedTunnel, "unexpected resolved tunnel");
 }
 
@@ -127,7 +127,7 @@
     Emporter *emporter = [[Emporter alloc] init];
     NSURL *directoryURL = [[NSBundle bundleForClass:[self class]] bundleURL];
     EmporterTunnel *tunnel = [emporter createTunnelWithURL:directoryURL properties:nil error:NULL];
-    EmporterTunnel *resolvedTunnel = [emporter tunnelForURL:directoryURL];
+    EmporterTunnel *resolvedTunnel = [emporter tunnelForURL:directoryURL error:NULL];
     
     XCTAssertNotNil(resolvedTunnel, "expected resolved tunnel");
     XCTAssertEqualObjects(tunnel.id, resolvedTunnel.id, "expected resolved tunnel to match original");
@@ -157,7 +157,7 @@
     
     Emporter *emporter = [[Emporter alloc] init];
     EmporterTunnel *tunnel = [emporter createTunnelWithURL:[NSURL URLWithString:@"http://127.0.0.1:1234"] properties:nil error:NULL];
-    [emporter suspendService];
+    [emporter suspendService:NULL];
     
     id configObserver = [[NSNotificationCenter defaultCenter] addObserverForName:EmporterTunnelConfigurationDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         XCTAssertEqualObjects(tunnel.id, note.userInfo[EmporterTunnelIdentifierUserInfoKey], @"Unexpected tunnel");
@@ -209,7 +209,7 @@
         [[NSNotificationCenter defaultCenter] removeObserver:tunnelStatusObserver];
     }];
     
-    [emporter resumeService];
+    [emporter resumeService:NULL];
     
     [self waitForExpectationsWithTimeout:2 handler:nil];
 }

@@ -18,7 +18,14 @@ NSNotificationName EmporterTunnelConfigurationDidChangeNotification = @"Emporter
 
 NSString *const EmporterTunnelIdentifierUserInfoKey = @"EmporterTunnelIdentifierUserInfoKey";
 
-@implementation Emporter
+@interface EmporterErrorLogger : NSObject<SBApplicationDelegate>
+@property(nonatomic,weak) Emporter *emporter;
+@end
+
+
+@implementation Emporter {
+    EmporterErrorLogger *_logger;
+}
 @synthesize _application = _application;
 @synthesize bundleURL = _bundleURL;
 
@@ -109,6 +116,11 @@ static NSURL *_fixedBundleURL = nil;
         return nil;
     
     _application = application;
+    
+    _logger = [[EmporterErrorLogger alloc] init];
+    _logger.emporter = self;
+    _application.delegate = _logger; // delegate is strong (!)
+    
     _bundleURL = bundleURL;
     _bundleIdentifier = bundleIdentifier;
     
@@ -190,17 +202,30 @@ static NSURL *_fixedBundleURL = nil;
     return [_application serviceState];
 }
 
-- (void)resumeService {
+- (BOOL)resumeService:(NSError **)outError {
     [_application resumeService];
+    
+    if (outError != NULL) {
+        (*outError) = _application.lastError;
+    }
+    
+    return _application.lastError == nil;
 }
 
-- (void)suspendService {
+- (BOOL)suspendService:(NSError **)outError  {
     [_application suspendService];
+
+    
+    if (outError != NULL) {
+        (*outError) = _application.lastError;
+    }
+    
+    return _application.lastError == nil;
 }
 
 #pragma mark - Tunnels
 
-- (EmporterTunnel *)tunnelForURL:(NSURL *)url {
+- (EmporterTunnel *)tunnelForURL:(NSURL *)url error:(NSError **)outError {
     // Use predicate for best performance
     NSPredicate *filter = nil;
     
@@ -220,15 +245,33 @@ static NSURL *_fixedBundleURL = nil;
         filter = [NSCompoundPredicate andPredicateWithSubpredicates:@[hostFilter, portFilter]];
     }
     
-    return [[[_application tunnels] filteredArrayUsingPredicate:filter] firstObject];
+    EmporterTunnel *tunnel = [[[_application tunnels] filteredArrayUsingPredicate:filter] firstObject];
+    
+    if (outError != NULL) {
+        (*outError) = _application.lastError;
+    }
+
+    return (_application.lastError == nil) ? tunnel : nil;
 }
 
-- (EmporterTunnel *)tunnelWithIdentifier:(NSString *)identifer {
-    return [[_application tunnels] objectWithID:identifer];
+- (EmporterTunnel *)tunnelWithIdentifier:(NSString *)identifer error:(NSError **)outError {
+    EmporterTunnel *tunnel = [[_application tunnels] objectWithID:identifer];
+    
+    if (outError != NULL) {
+        (*outError) = _application.lastError;
+    }
+
+    return (_application.lastError == nil) ? tunnel : nil;
 }
 
-- (EmporterTunnel *)configureTunnelWithURL:(NSURL *)url {
-    return [_application configureTunnelWithSource:url];
+- (EmporterTunnel *)configureTunnelWithURL:(NSURL *)url error:(NSError **)outError {
+    EmporterTunnel *tunnel = [_application configureTunnelWithSource:url];
+    
+    if (outError != NULL) {
+        (*outError) = _application.lastError;
+    }
+    
+    return (_application.lastError == nil) ? tunnel : nil;
 }
 
 - (EmporterTunnel *)createTunnelWithURL:(NSURL *)url properties:(NSDictionary *)properties error:(NSError **)outError {
@@ -270,6 +313,16 @@ static NSURL *_fixedBundleURL = nil;
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:notification.name object:self userInfo:userInfo];
+}
+
+@end
+
+
+@implementation EmporterErrorLogger
+
+- (nullable id)eventDidFail:(nonnull const AppleEvent *)event withError:(nonnull NSError *)error {
+    NSLog(@"Warning: Emporter event failed with error: %@", error);
+    return nil;
 }
 
 @end
