@@ -69,6 +69,20 @@
     XCTAssertTrue([Emporter isInstalled]);
 }
 
+- (void)testBundleURL {
+    Emporter *emporter = [[Emporter alloc] init];
+    
+    XCTAssertNotNil(emporter);
+    XCTAssertNotNil(emporter.bundleURL);
+
+    NSString *appPath = NSProcessInfo.processInfo.environment[@"EMPORTER_APP_PATH"];
+    if (appPath != nil) {
+        XCTAssertEqualObjects(emporter.bundleURL, [NSURL fileURLWithPath:appPath]);
+    } else {
+        XCTAssertTrue([emporter.bundleURL.path hasPrefix:@"/Applications"], @"%@ is not in /Applications directory", emporter.bundleURL.path);
+    }
+}
+
 #pragma mark - Tunnels
 
 - (void)testTunnelWithURL {

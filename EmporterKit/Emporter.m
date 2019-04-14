@@ -22,7 +22,6 @@ NSString *const EmporterTunnelIdentifierUserInfoKey = @"EmporterTunnelIdentifier
 @property(nonatomic,weak) Emporter *emporter;
 @end
 
-
 @implementation Emporter {
     EmporterErrorLogger *_logger;
 }
@@ -65,14 +64,45 @@ static NSURL *_fixedBundleURL = nil;
         return fixedURL;
     }
     
+    // Find all bundle URLs
+    NSMutableArray *bundleURLs = [NSMutableArray array];
+    
     for (NSString *bundleId in [self _bundleIds]) {
         NSArray *urls = CFBridgingRelease(LSCopyApplicationURLsForBundleIdentifier((__bridge CFStringRef)bundleId, NULL));
-        if (urls != nil && urls.count > 0) {
-            return [urls firstObject];
+        if (urls != nil) {
+            [bundleURLs addObjectsFromArray:urls];
         }
     }
     
-    return nil;
+    // Find newest version
+    static NSString* (^appVersion)(NSURL *) = ^NSString*(NSURL *appURL) {
+        NSBundle *bundle = [NSBundle bundleWithURL:appURL];
+        if (bundle == nil) {
+            return nil;
+        } else {
+            return [bundle objectForInfoDictionaryKey:(__bridge NSString *)kCFBundleVersionKey];
+        }
+    };
+    
+    return [[bundleURLs sortedArrayUsingComparator:^NSComparisonResult(NSURL *url1, NSURL *url2) {
+        NSString *version1 = appVersion(url1);
+        NSString *version2 = appVersion(url2);
+        
+        if (version1 == nil) {
+            return (version2 == nil) ? NSOrderedSame : NSOrderedAscending;
+        } else if (version2 == nil) {
+            return NSOrderedDescending;
+        }
+        
+        NSComparisonResult order = [version2 compare:version1];
+        
+        // If versions match, sort by path
+        if (order == NSOrderedSame) {
+            order = [url1.path compare:url2.path];
+        }
+        
+        return order;
+    }] firstObject];
 }
 
 + (NSString *)_bundleIdentifier {
@@ -215,7 +245,6 @@ static NSURL *_fixedBundleURL = nil;
 - (BOOL)suspendService:(NSError **)outError  {
     [_application suspendService];
 
-    
     if (outError != NULL) {
         (*outError) = _application.lastError;
     }
