@@ -12,6 +12,9 @@
 #import "Emporter-Private.h"
 #import "ApplicationLauncher.h"
 
+NSNotificationName EmporterDidLaunchNotification = @"EmporterDidLaunchNotification";
+NSNotificationName EmporterDidTerminateNotification = @"EmporterDidTerminateNotification";
+
 NSNotificationName EmporterServiceStateDidChangeNotification = @"EmporterServiceStateDidChangeNotification";
 NSNotificationName EmporterTunnelStateDidChangeNotification = @"EmporterTunnelStateDidChangeNotification";
 NSNotificationName EmporterTunnelConfigurationDidChangeNotification = @"EmporterTunnelConfigurationDidChangeNotification";
@@ -158,10 +161,14 @@ static NSURL *_fixedBundleURL = nil;
         [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(_dispatchNotification:) name:name object:nil];
     }
     
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(_dispatchNotification:) name:NSWorkspaceDidLaunchApplicationNotification object:nil];
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(_dispatchNotification:) name:NSWorkspaceDidTerminateApplicationNotification object:nil];
+    
     return self;
 }
 
 - (void)dealloc {
+    [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -333,6 +340,16 @@ static NSURL *_fixedBundleURL = nil;
         });
     }
     
+    if ([@[NSWorkspaceDidLaunchApplicationNotification, NSWorkspaceDidTerminateApplicationNotification] containsObject:notification.name]) {
+        NSRunningApplication *application = notification.userInfo[NSWorkspaceApplicationKey];
+        if ([application.bundleIdentifier isEqualToString:_bundleIdentifier]) {
+            NSNotificationName name = self.isRunning ? EmporterDidLaunchNotification : EmporterDidTerminateNotification;
+            [[NSNotificationCenter defaultCenter] postNotificationName:name object:self userInfo:nil];
+        }
+        
+        return;
+    }
+    
     NSDictionary *userInfo = nil;
     
     if ([@[EmporterTunnelStateDidChangeNotification, EmporterTunnelConfigurationDidChangeNotification] containsObject:notification.name]) {
@@ -355,3 +372,54 @@ static NSURL *_fixedBundleURL = nil;
 }
 
 @end
+
+
+@implementation Emporter(Version)
+
++ (BOOL)getVersion:(EmporterVersion *)version {
+    NSURL *bundleURL = [self _bundleURL];
+    if (bundleURL == nil) {
+        return NO;
+    }
+    
+    NSBundle *bundle = [NSBundle bundleWithURL:bundleURL];
+    if (bundle == nil) {
+        return NO;
+    }
+    
+    
+    NSString *versionString = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    NSArray<NSString*> *versionComponents = [(versionString ?: @"0.0.0") componentsSeparatedByString:@"."];
+
+    if (versionComponents.count >= 2) {
+        version->major = MAX(0, [versionComponents[0] integerValue]);
+        version->minor = MAX(0, [versionComponents[1] integerValue]);
+        
+        if (versionComponents.count >= 3) {
+            version->patch = MAX(0, [[[versionComponents[2] componentsSeparatedByString:@"-"] firstObject] integerValue]);
+        }
+    }
+    
+    NSString *apiString = [bundle objectForInfoDictionaryKey:@"EMAPIVersionString"];
+    NSArray *apiComponents = [(apiString ?: @"0.1.0") componentsSeparatedByString:@"."];
+    
+    if (apiComponents.count >= 2) {
+        version->api.major = MAX(0, [apiComponents[0] integerValue]);
+        version->api.minor = MAX(0, [apiComponents[1] integerValue]);
+        
+        if (apiComponents.count >= 3) {
+            version->api.patch = MAX(0, [[[apiComponents[2] componentsSeparatedByString:@"-"] firstObject] integerValue]);
+        }
+    }
+    
+    NSString *buildNumberString = [bundle objectForInfoDictionaryKey:(__bridge NSString *)kCFBundleVersionKey];
+    version->buildNumber = MAX(0, [(buildNumberString ?: @"1") integerValue]);
+    
+    return YES;
+}
+
+@end
+
+BOOL IsEmporterAPIAvailable(EmporterVersion version, int major, int minor) {
+    return version.api.major > major || (version.api.major == major && version.api.minor >= minor);
+}

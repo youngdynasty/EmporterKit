@@ -106,6 +106,23 @@ typedef NS_OPTIONS(NSUInteger, EmporterUserConsentType) {
 #pragma mark - Tunnels
 
 /*!
+ EmporterDidLaunchNotification is posted when Emporter launches.
+ */
+extern NSNotificationName EmporterDidLaunchNotification;
+
+/*!
+ EmporterDidTerminateNotification is posted when Emporter terminates.
+ */
+extern NSNotificationName EmporterDidTerminateNotification;
+
+/*!
+ EmporterTunnelStateDidChangeNotification is posted when a tunnel's state changes.
+ 
+ The userInfo will include EmporterTunnelIdentifierUserInfoKey for the tunnel whose state changed.
+ */
+extern NSNotificationName EmporterTunnelStateDidChangeNotification;
+
+/*!
  EmporterTunnelStateDidChangeNotification is posted when a tunnel's state changes.
  
  The userInfo will include EmporterTunnelIdentifierUserInfoKey for the tunnel whose state changed.
@@ -218,5 +235,37 @@ extern NSNotificationName EmporterServiceStateDidChangeNotification;
 - (BOOL)suspendService:(NSError **__nullable)outError;
 
 @end
+
+#pragma mark -
+
+/*!
+ Contextual info describing the current Emporter version.
+*/
+typedef struct _EmporterVersion {
+    struct {
+        NSUInteger major;
+        NSUInteger minor;
+        NSUInteger patch;
+    } api;
+
+    NSUInteger major;
+    NSUInteger minor;
+    NSUInteger patch;
+    
+    NSUInteger buildNumber;
+} EmporterVersion;
+
+@interface Emporter(Version)
+
+/*!
+ Get the current version of Emporter (without requiring it to be open).
+ 
+ \returns True if Emporter is installed and the version was extracted.
+ */
++ (BOOL)getVersion:(EmporterVersion *)version;
+
+@end
+
+BOOL IsEmporterAPIAvailable(EmporterVersion version, int major, int minor);
 
 NS_ASSUME_NONNULL_END
