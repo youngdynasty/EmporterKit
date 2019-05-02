@@ -19,12 +19,6 @@
     self.continueAfterFailure = false;
     [self terminateRunningApps];
     
-    // Use custom app path if supplied (for testing new features)
-    NSString *appPath = NSProcessInfo.processInfo.environment[@"EMPORTER_APP_PATH"];
-    if (appPath != nil) {
-        [Emporter _forceBundleURL:[NSURL fileURLWithPath:appPath]];
-    }
-    
     // Launch in background without data persistence
     XCTestExpectation *launchExpectation = [self expectationWithDescription:@"launch"];
     NSArray *launchArgs = @[@"--background", @"--transient", @"--termsVersion", @"1"];

@@ -31,6 +31,16 @@ NSString *const EmporterTunnelIdentifierUserInfoKey = @"EmporterTunnelIdentifier
 @synthesize _application = _application;
 @synthesize bundleURL = _bundleURL;
 
+#if DEBUG
++ (void)initialize {
+    // Use custom app path if supplied (for testing new features)
+    NSString *appPath = NSProcessInfo.processInfo.environment[@"EMPORTER_APP_PATH"];
+    if (appPath != nil) {
+        [self _forceBundleURL:[NSURL fileURLWithPath:appPath]];
+    }
+}
+#endif
+
 + (BOOL)isInstalled {
     return [self _bundleIdentifier] != nil;
 }
