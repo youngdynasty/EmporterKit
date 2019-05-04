@@ -184,6 +184,38 @@
     [self waitForExpectationsWithTimeout:2 handler:nil];
 }
 
+- (void)testTunnelLifeObserver {
+    XCTestExpectation *notificationExpectation = [self expectationWithDescription:@"notifications"];
+    notificationExpectation.expectedFulfillmentCount = 2;
+    
+    __block NSString *noteTunnelId = nil;
+    id addObserver = [[NSNotificationCenter defaultCenter] addObserverForName:EmporterDidAddTunnelNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        XCTAssertNotNil(noteTunnelId = note.userInfo[EmporterTunnelIdentifierUserInfoKey], @"Expected tunnel id");
+        [notificationExpectation fulfill];
+    }];
+
+    id removeObserver = [[NSNotificationCenter defaultCenter] addObserverForName:EmporterDidRemoveTunnelNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        XCTAssertEqualObjects(noteTunnelId, note.userInfo[EmporterTunnelIdentifierUserInfoKey], @"Unexpected tunnel");
+        [notificationExpectation fulfill];
+    }];
+
+    [self addTeardownBlock:^{
+        [[NSNotificationCenter defaultCenter] removeObserver:addObserver];
+        [[NSNotificationCenter defaultCenter] removeObserver:removeObserver];
+    }];
+    
+    Emporter *emporter = [[Emporter alloc] init];
+    EmporterTunnel *tunnel = [emporter createTunnelWithURL:[NSURL URLWithString:@"http://127.0.0.1:8376"] properties:nil error:NULL];
+    NSString *tunnelId = tunnel.id;
+    XCTAssertNotNil(tunnelId, @"Expected tunnel id");
+    
+    [tunnel delete];
+    
+    [self waitForExpectationsWithTimeout:2 handler:nil];
+    
+    XCTAssertEqualObjects(tunnelId, noteTunnelId, @"Unexpected tunnel ids");
+}
+
 #pragma mark - Observers
 
 - (void)testServiceObservers {
@@ -199,15 +231,17 @@
     }];
     
     XCTestExpectation *tunnelStatusNotification = [self expectationWithDescription:@"tunnel status"];
-    tunnelStatusNotification.assertForOverFulfill = false;
+    tunnelStatusNotification.expectedFulfillmentCount = 3;
     
     NSURL *directoryURL = [[NSBundle bundleForClass:[self class]] bundleURL];
     EmporterTunnel *tunnel = [emporter createTunnelWithURL:directoryURL properties:nil error:NULL];
-    EmporterTunnelState originalTunnelState = tunnel.state;
+    __block EmporterTunnelState previousTunnelState = tunnel.state;
     
     id tunnelStatusObserver = [[NSNotificationCenter defaultCenter] addObserverForName:EmporterTunnelStateDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         XCTAssertEqualObjects(tunnel.id, note.userInfo[EmporterTunnelIdentifierUserInfoKey], @"Unexpected tunnel");
-        XCTAssertNotEqual(originalTunnelState, tunnel.state, @"Unexpected tunnel state");
+        XCTAssertNotEqual(previousTunnelState, tunnel.state, @"Unexpected tunnel state");
+        
+        previousTunnelState = tunnel.state;
         
         [tunnelStatusNotification fulfill];
     }];
@@ -219,7 +253,7 @@
     
     [emporter resumeService:NULL];
     
-    [self waitForExpectationsWithTimeout:2 handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 @end

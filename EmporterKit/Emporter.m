@@ -15,6 +15,9 @@
 NSNotificationName EmporterDidLaunchNotification = @"EmporterDidLaunchNotification";
 NSNotificationName EmporterDidTerminateNotification = @"EmporterDidTerminateNotification";
 
+NSNotificationName EmporterDidAddTunnelNotification = @"EmporterDidAddTunnelNotification";
+NSNotificationName EmporterDidRemoveTunnelNotification = @"EmporterDidRemoveTunnelNotification";
+
 NSNotificationName EmporterServiceStateDidChangeNotification = @"EmporterServiceStateDidChangeNotification";
 NSNotificationName EmporterTunnelStateDidChangeNotification = @"EmporterTunnelStateDidChangeNotification";
 NSNotificationName EmporterTunnelConfigurationDidChangeNotification = @"EmporterTunnelConfigurationDidChangeNotification";
@@ -167,7 +170,7 @@ static NSURL *_fixedBundleURL = nil;
     _bundleURL = bundleURL;
     _bundleIdentifier = bundleIdentifier;
     
-    for (NSNotificationName name in @[EmporterServiceStateDidChangeNotification, EmporterTunnelStateDidChangeNotification, EmporterTunnelConfigurationDidChangeNotification]) {
+    for (NSNotificationName name in @[EmporterServiceStateDidChangeNotification, EmporterTunnelStateDidChangeNotification, EmporterTunnelConfigurationDidChangeNotification, EmporterDidAddTunnelNotification, EmporterDidRemoveTunnelNotification]) {
         [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(_dispatchNotification:) name:name object:nil];
     }
     
@@ -362,10 +365,8 @@ static NSURL *_fixedBundleURL = nil;
     
     NSDictionary *userInfo = nil;
     
-    if ([@[EmporterTunnelStateDidChangeNotification, EmporterTunnelConfigurationDidChangeNotification] containsObject:notification.name]) {
-        if ([notification.object isKindOfClass:[NSString class]]) {
-            userInfo = @{EmporterTunnelIdentifierUserInfoKey: notification.object};
-        }
+    if ([notification.object isKindOfClass:[NSString class]] && [[NSUUID alloc] initWithUUIDString:notification.object] != nil) {
+        userInfo = @{EmporterTunnelIdentifierUserInfoKey: notification.object};
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:notification.name object:self userInfo:userInfo];

@@ -116,6 +116,20 @@ extern NSNotificationName EmporterDidLaunchNotification;
 extern NSNotificationName EmporterDidTerminateNotification;
 
 /*!
+ EmporterDidAddTunnelNotification is posted when a tunnel is added.
+ 
+ The userInfo will include EmporterTunnelIdentifierUserInfoKey for the tunnel that was added.
+ */
+extern NSNotificationName EmporterDidAddTunnelNotification;
+
+/*!
+ EmporterDidRemoveTunnelNotification is posted when a tunnel is removed.
+ 
+ The userInfo will include EmporterTunnelIdentifierUserInfoKey for the tunnel that was removed.
+ */
+extern NSNotificationName EmporterDidRemoveTunnelNotification;
+
+/*!
  EmporterTunnelStateDidChangeNotification is posted when a tunnel's state changes.
  
  The userInfo will include EmporterTunnelIdentifierUserInfoKey for the tunnel whose state changed.

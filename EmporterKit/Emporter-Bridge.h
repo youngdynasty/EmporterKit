@@ -77,6 +77,7 @@ typedef enum EmporterTunnelState EmporterTunnelState;
 
 - (SBElementArray<EmporterTunnel *> *) tunnels;
 
+@property (copy, readonly) NSString *apiVersion;  // The version of the scripting API.
 @property (readonly) EmporterServiceState serviceState;  // The state of the connection to the service.
 @property (copy, readonly) NSString *conflictReason;  // The reason the service is in a conflicted state.
 @property (copy, readonly) NSDate *nextReconnect;  // If the service is in a conflicted state (i.e. the service is unreachable), a reconnect attempt will be made by this date.
@@ -89,6 +90,7 @@ typedef enum EmporterTunnelState EmporterTunnelState;
 - (NSString *) id;  // The unique identifier of the tunnel.
 @property (readonly) EmporterTunnelKind kind;  // The kind of the tunnel.
 @property (copy) NSString *name;  // The name of the tunnel.
+@property (readonly) BOOL isTemporary;  // Is the tunnel temporary?
 @property BOOL isEnabled;  // Is the tunnel enabled?
 @property (readonly) BOOL isAuthEnabled;  // Is the tunnel password protected?
 @property (copy, readonly) NSString *remoteUrl;  // The URL of the tunnel.
@@ -103,6 +105,7 @@ typedef enum EmporterTunnelState EmporterTunnelState;
 @property BOOL isLiveReloadEnabled;  // If enabled, anyone visiting your URL will receive live updates when images, markup or stylesheets change. (directory kind)
 
 - (void) edit;  // Edit a tunnel's settings
+- (BOOL) passwordProtectWithUsername:(NSString *)username password:(NSString *)password;  // Password protect a tunnel, unless it's already protected
 
 @end
 
