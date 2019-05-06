@@ -276,30 +276,13 @@ static NSURL *_fixedBundleURL = nil;
 
 - (EmporterTunnel *)tunnelForURL:(NSURL *)url error:(NSError **)outError {
     // Use predicate for best performance
-    NSPredicate *filter = nil;
-    
-    if ([url isFileURL]) {
-        filter = [NSPredicate predicateWithFormat:@"directory == %@", url.URLByStandardizingPath];
-    } else {
-        NSPredicate *portFilter = [NSPredicate predicateWithFormat:@"proxyPort == %@", url.port];
-        NSPredicate *hostFilter = nil;
-        
-        if ([@[@"127.0.0.1", @"localhost"] containsObject:url.host]) {
-            // We should be able to use "proxyHostHeader IN %@" but our tests suggest otherwise
-            hostFilter = [NSPredicate predicateWithFormat:@"proxyHostHeader == '127.0.0.1' OR proxyHostHeader == 'localhost' OR proxyHostHeader == ''"];
-        } else {
-            hostFilter = [NSPredicate predicateWithFormat:@"proxyHostHeader == %@", url.host];
-        }
-        
-        filter = [NSCompoundPredicate andPredicateWithSubpredicates:@[hostFilter, portFilter]];
-    }
-    
+    NSPredicate *filter = [Emporter tunnelPredicateForSourceURL:url];
     EmporterTunnel *tunnel = [[[_application tunnels] filteredArrayUsingPredicate:filter] firstObject];
     
     if (outError != NULL) {
         (*outError) = _application.lastError;
     }
-
+    
     return (_application.lastError == nil) ? tunnel : nil;
 }
 
@@ -434,3 +417,29 @@ static NSURL *_fixedBundleURL = nil;
 BOOL IsEmporterAPIAvailable(EmporterVersion version, int major, int minor) {
     return version.api.major > major || (version.api.major == major && version.api.minor >= minor);
 }
+
+@implementation Emporter(Predicates)
+
++ (NSPredicate *)tunnelPredicateForPort:(NSNumber *)port {
+    return [NSPredicate predicateWithFormat:@"proxyPort == %@", port];
+}
+
++ (NSPredicate *)tunnelPredicateForSourceURL:(NSURL *)url {
+    if ([url isFileURL]) {
+        return [NSPredicate predicateWithFormat:@"directory == %@", url.URLByStandardizingPath];
+    } else {
+        NSPredicate *portFilter = [self tunnelPredicateForPort:url.port];
+        NSPredicate *hostFilter = nil;
+        
+        if ([@[@"127.0.0.1", @"localhost"] containsObject:url.host]) {
+            // We should be able to use "proxyHostHeader IN %@" but our tests suggest otherwise
+            hostFilter = [NSPredicate predicateWithFormat:@"proxyHostHeader == '127.0.0.1' OR proxyHostHeader == 'localhost' OR proxyHostHeader == ''"];
+        } else {
+            hostFilter = [NSPredicate predicateWithFormat:@"proxyHostHeader == %@", url.host];
+        }
+        
+        return [NSCompoundPredicate andPredicateWithSubpredicates:@[hostFilter, portFilter]];
+    }
+}
+
+@end
