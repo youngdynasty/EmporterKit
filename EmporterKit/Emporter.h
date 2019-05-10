@@ -86,6 +86,16 @@ typedef NS_OPTIONS(NSUInteger, EmporterUserConsentType) {
  */
 - (void)determineUserConsentWithPrompt:(BOOL)allowPrompt completionHandler:(void(^)(EmporterUserConsentType))completionHandler;
 
+
+/*!
+ Determine the user's consent to access Emporter data with an optional prompt.
+ 
+ This is the synchronous version of \c determineUserConsentWithPrompt:completionHandler:. See the former method for discussion.
+ 
+ \returns The current user consent for accessing Emporter data.
+ */
+- (EmporterUserConsentType)determineUserConsentTypeWithPrompt:(BOOL)prompt;
+
 /*!
  Activate the current running instance of Emporter.
  */
@@ -97,6 +107,17 @@ typedef NS_OPTIONS(NSUInteger, EmporterUserConsentType) {
  \param completionHandler The completion handler is invoked once Emporter has finished launching.
  */
 - (void)launchInBackgroundWithCompletionHandler:(void (^__nullable)(NSError *__nullable))completionHandler;
+
+/*!
+ Launch Emporter, synchronously, without activation or its windows appearing.
+ 
+ This method will block until Emporter has launched. To launch asynchronously, use \c launchInBackgroundWithCompletionHandler:.
+ 
+ \param outError A pointer to an NSError explaining why Emporter could not be launched. Can be NULL.
+ 
+ \returns True if Emporter was launched successfully.
+ */
+- (BOOL)launchInBackground:(NSError **__nullable)outError;
 
 /*!
  Terminate the current running instance of Emporter.

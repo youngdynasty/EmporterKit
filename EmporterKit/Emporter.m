@@ -207,6 +207,34 @@ static NSURL *_fixedBundleURL = nil;
     });
 }
 
+- (EmporterUserConsentType)determineUserConsentTypeWithPrompt:(BOOL)prompt {
+    // Schedule run loop source so we can process events while we wait
+    CFRunLoopRef runLoop = CFRunLoopGetCurrent();
+    CFRunLoopSourceContext runLoopCtx = { .perform = &_NOOP };
+    CFRunLoopSourceRef runLoopSource = CFRunLoopSourceCreate(NULL, 0, &runLoopCtx);
+    
+    CFRunLoopAddSource(runLoop, runLoopSource, kCFRunLoopCommonModes);
+    CFRunLoopWakeUp(runLoop);
+    
+    __block EmporterUserConsentType consentType = EmporterUserConsentTypeUnknown;
+    __block BOOL isBusy = YES;
+
+    [self determineUserConsentWithPrompt:prompt completionHandler:^(EmporterUserConsentType v) {
+        consentType = v;
+        isBusy = NO;
+        
+        CFRunLoopSourceSignal(runLoopSource);
+        CFRunLoopWakeUp(runLoop);
+    }];
+    
+    // Time out after ~2 seconds
+    while (isBusy && CFRunLoopRunInMode(kCFRunLoopDefaultMode, 2, true) != kCFRunLoopRunTimedOut);
+    
+    CFRunLoopRemoveSource(runLoop, runLoopSource, kCFRunLoopCommonModes);
+    
+    return consentType;
+}
+
 - (EmporterUserConsentType)_determineUserConsentTypeWithPrompt:(BOOL)prompt {
     if (@available(macOS 10.14, *)) {
         if (![self isRunning]) {
@@ -244,6 +272,43 @@ static NSURL *_fixedBundleURL = nil;
     }
     
     [ApplicationLauncher launchApplicationAtURL:_bundleURL withArguments:@[@"--background"] timeout:10 completionHandler:completionHandler];
+}
+
+static void _NOOP(void *info) {}
+
+- (BOOL)launchInBackground:(NSError **)outError {
+    __block NSError *error = nil;
+    __block BOOL isLaunching = YES;
+    
+    // Schedule run loop source so we can wait for the app to launch but still process events
+    CFRunLoopRef runLoop = CFRunLoopGetCurrent();
+    CFRunLoopSourceContext runLoopCtx = { .perform = &_NOOP };
+    CFRunLoopSourceRef runLoopSource = CFRunLoopSourceCreate(NULL, 1, &runLoopCtx);
+    
+    CFRunLoopAddSource(runLoop, runLoopSource, kCFRunLoopCommonModes);
+    CFRunLoopWakeUp(runLoop);
+    
+    [self launchInBackgroundWithCompletionHandler:^(NSError *err) {
+        error = err;
+        isLaunching = NO;
+        
+        CFRunLoopSourceSignal(runLoopSource);
+        CFRunLoopWakeUp(runLoop);
+    }];
+    
+    // Wait for launch (launcher handles timeouts for us)
+    while (isLaunching) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 5, true);
+    }
+    
+    // Clean up
+    CFRunLoopRemoveSource(runLoop, runLoopSource, kCFRunLoopCommonModes);
+    
+    if (outError != NULL) {
+        (*outError) = error;
+    }
+    
+    return (error == nil);
 }
 
 #pragma mark - Service
