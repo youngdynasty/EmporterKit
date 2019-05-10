@@ -223,14 +223,22 @@ static NSURL *_fixedBundleURL = nil;
         consentType = v;
         isBusy = NO;
         
-        CFRunLoopSourceSignal(runLoopSource);
-        CFRunLoopWakeUp(runLoop);
+        if (runLoopSource != NULL) {
+            CFRunLoopSourceSignal(runLoopSource);
+            CFRunLoopWakeUp(runLoop);
+        }
     }];
     
-    // Time out after ~2 seconds
-    while (isBusy && CFRunLoopRunInMode(kCFRunLoopDefaultMode, 2, true) != kCFRunLoopRunTimedOut);
+    while (isBusy) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 5, true);
+    }
     
     CFRunLoopRemoveSource(runLoop, runLoopSource, kCFRunLoopCommonModes);
+    
+    if (runLoopSource != NULL) {
+        CFRelease(runLoopSource);
+        runLoopSource = NULL;
+    }
     
     return consentType;
 }
@@ -292,8 +300,10 @@ static void _NOOP(void *info) {}
         error = err;
         isLaunching = NO;
         
-        CFRunLoopSourceSignal(runLoopSource);
-        CFRunLoopWakeUp(runLoop);
+        if (runLoopSource != NULL) {
+            CFRunLoopSourceSignal(runLoopSource);
+            CFRunLoopWakeUp(runLoop);
+        }
     }];
     
     // Wait for launch (launcher handles timeouts for us)
@@ -304,6 +314,11 @@ static void _NOOP(void *info) {}
     // Clean up
     CFRunLoopRemoveSource(runLoop, runLoopSource, kCFRunLoopCommonModes);
     
+    if (runLoopSource != NULL) {
+        CFRelease(runLoopSource);
+        runLoopSource = NULL;
+    }
+
     if (outError != NULL) {
         (*outError) = error;
     }

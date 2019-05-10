@@ -83,6 +83,7 @@ typedef NS_OPTIONS(NSUInteger, EmporterUserConsentType) {
  
  \param allowPrompt If true, the user will be prompted (at most once) for consent as needed.
  \param completionHandler Invoked on the main queue once the user has approved or denied access to control Emporter.
+ 
  */
 - (void)determineUserConsentWithPrompt:(BOOL)allowPrompt completionHandler:(void(^)(EmporterUserConsentType))completionHandler;
 
@@ -104,7 +105,7 @@ typedef NS_OPTIONS(NSUInteger, EmporterUserConsentType) {
 /*!
  Launch Emporter in the without activation or its windows appearing.
  
- \param completionHandler The completion handler is invoked once Emporter has finished launching.
+ \param completionHandler Invoked once on the main queue once Emporter has finished launching.
  */
 - (void)launchInBackgroundWithCompletionHandler:(void (^__nullable)(NSError *__nullable))completionHandler;
 
