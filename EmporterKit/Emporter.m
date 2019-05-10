@@ -317,6 +317,10 @@ static void _NOOP(void *info) {}
     return [_application serviceState];
 }
 
+- (NSString *)serviceConflictReason {
+    return [_application conflictReason];
+}
+
 - (BOOL)resumeService:(NSError **)outError {
     [_application resumeService];
     
