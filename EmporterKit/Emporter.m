@@ -24,12 +24,13 @@ NSNotificationName EmporterTunnelConfigurationDidChangeNotification = @"Emporter
 
 NSString *const EmporterTunnelIdentifierUserInfoKey = @"EmporterTunnelIdentifierUserInfoKey";
 
-@interface EmporterErrorLogger : NSObject<SBApplicationDelegate>
+@interface _EmporterLogger : NSObject <SBApplicationDelegate>
 @property(nonatomic,weak) Emporter *emporter;
 @end
 
+
 @implementation Emporter {
-    EmporterErrorLogger *_logger;
+    _EmporterLogger *_logger;
 }
 @synthesize _application = _application;
 @synthesize bundleURL = _bundleURL;
@@ -163,7 +164,7 @@ static NSURL *_fixedBundleURL = nil;
     
     _application = application;
     
-    _logger = [[EmporterErrorLogger alloc] init];
+    _logger = [[_EmporterLogger alloc] init];
     _logger.emporter = self;
     _application.delegate = _logger; // delegate is strong (!)
     
@@ -197,50 +198,37 @@ static NSURL *_fixedBundleURL = nil;
     return [_application isRunning];
 }
 
+- (EmporterUserConsentType)userConsentType {
+    // Send an apple event which will fail if we don't have permissions (but will automatically prompt the user if appropriate).
+    // The reason this is implemented in such a way is because there were random, unpredictable deadlocks when using the user
+    // consent API from the command line. I'm quite sure why (as the locks were from within Apple's own frameworks) but they
+    // weren't resolved from running NSRunLoops, etc.
+    [_application apiVersion];
+    
+    NSError *error = _application.lastError;
+    
+    if (error == nil) {
+        return EmporterUserConsentTypeGranted;
+    }
+    
+    switch ([(error.userInfo[@"ErrorNumber"] ?: @(0)) integerValue]) {
+        case errAETargetAddressNotPermitted:
+        case errAEEventNotPermitted: {
+            return EmporterUserConsentTypeDenied;
+        }
+        default:
+            return EmporterUserConsentTypeUnknown;
+    }
+}
+
 - (void)determineUserConsentWithPrompt:(BOOL)allowPrompt completionHandler:(void (^)(EmporterUserConsentType))completionHandler {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        EmporterUserConsentType userConsentType = [self _determineUserConsentTypeWithPrompt:YES];
+        EmporterUserConsentType userConsentType = [self _determineUserConsentTypeWithPrompt:allowPrompt];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             completionHandler(userConsentType);
         });
     });
-}
-
-- (EmporterUserConsentType)determineUserConsentTypeWithPrompt:(BOOL)prompt {
-    // Schedule run loop source so we can process events while we wait
-    CFRunLoopRef runLoop = CFRunLoopGetCurrent();
-    CFRunLoopSourceContext runLoopCtx = { .perform = &_NOOP };
-    CFRunLoopSourceRef runLoopSource = CFRunLoopSourceCreate(NULL, 0, &runLoopCtx);
-    
-    CFRunLoopAddSource(runLoop, runLoopSource, kCFRunLoopCommonModes);
-    CFRunLoopWakeUp(runLoop);
-    
-    __block EmporterUserConsentType consentType = EmporterUserConsentTypeUnknown;
-    __block BOOL isBusy = YES;
-
-    [self determineUserConsentWithPrompt:prompt completionHandler:^(EmporterUserConsentType v) {
-        consentType = v;
-        isBusy = NO;
-        
-        if (runLoopSource != NULL) {
-            CFRunLoopSourceSignal(runLoopSource);
-            CFRunLoopWakeUp(runLoop);
-        }
-    }];
-    
-    while (isBusy) {
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 5, true);
-    }
-    
-    CFRunLoopRemoveSource(runLoop, runLoopSource, kCFRunLoopCommonModes);
-    
-    if (runLoopSource != NULL) {
-        CFRelease(runLoopSource);
-        runLoopSource = NULL;
-    }
-    
-    return consentType;
 }
 
 - (EmporterUserConsentType)_determineUserConsentTypeWithPrompt:(BOOL)prompt {
@@ -442,16 +430,6 @@ static void _NOOP(void *info) {}
 @end
 
 
-@implementation EmporterErrorLogger
-
-- (nullable id)eventDidFail:(nonnull const AppleEvent *)event withError:(nonnull NSError *)error {
-    NSLog(@"Warning: Emporter event failed with error: %@", error);
-    return nil;
-}
-
-@end
-
-
 @implementation Emporter(Version)
 
 + (BOOL)getVersion:(EmporterVersion *)version {
@@ -524,6 +502,15 @@ BOOL IsEmporterAPIAvailable(EmporterVersion version, int major, int minor) {
         
         return [NSCompoundPredicate andPredicateWithSubpredicates:@[hostFilter, portFilter]];
     }
+}
+
+@end
+
+@implementation _EmporterLogger
+
+- (nullable id)eventDidFail:(nonnull const AppleEvent *)event withError:(nonnull NSError *)error {
+    // NSLog(@"Warning: Emporter event failed with error: %@", error);
+    return nil;
 }
 
 @end

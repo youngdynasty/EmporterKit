@@ -59,45 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) NSString *bundleIdentifier;
 
 /*!
- User consent may be required to before Emporter data can be accessed.
- */
-typedef NS_OPTIONS(NSUInteger, EmporterUserConsentType) {
-    /*! Consent state is not known (is Emporter running?) */
-    EmporterUserConsentTypeUnknown,
-    
-    /*! Consent is required before Emporter data can be accessed. */
-    EmporterUserConsentTypeRequired,
-    
-    /*! Consent has been granted. */
-    EmporterUserConsentTypeGranted,
-    
-    /*! Consent has been denied. */
-    EmporterUserConsentTypeDenied
-};
-
-/*!
- Determine the user's consent to access Emporter data with an optional prompt.
- 
- Emporter must be running in order to prompt and/or determine the user's consent. This method will always return
- \c EmporterUserConsentTypeGranted when running macOS versions older than 10.14.
- 
- \param allowPrompt If true, the user will be prompted (at most once) for consent as needed.
- \param completionHandler Invoked on the main queue once the user has approved or denied access to control Emporter.
- 
- */
-- (void)determineUserConsentWithPrompt:(BOOL)allowPrompt completionHandler:(void(^)(EmporterUserConsentType))completionHandler;
-
-
-/*!
- Determine the user's consent to access Emporter data with an optional prompt.
- 
- This is the synchronous version of \c determineUserConsentWithPrompt:completionHandler:. See the former method for discussion.
- 
- \returns The current user consent for accessing Emporter data.
- */
-- (EmporterUserConsentType)determineUserConsentTypeWithPrompt:(BOOL)prompt;
-
-/*!
  Activate the current running instance of Emporter.
  */
 - (void)activate;
@@ -125,7 +86,139 @@ typedef NS_OPTIONS(NSUInteger, EmporterUserConsentType) {
  */
 - (void)quit;
 
+#pragma mark - Permissions
+
+/*!
+ User consent may be required to before Emporter data can be accessed.
+ */
+typedef NS_OPTIONS(NSUInteger, EmporterUserConsentType) {
+    /*! Consent state is not known (is Emporter running?) */
+    EmporterUserConsentTypeUnknown,
+    
+    /*! Consent is required before Emporter data can be accessed. */
+    EmporterUserConsentTypeRequired,
+    
+    /*! Consent has been granted. */
+    EmporterUserConsentTypeGranted,
+    
+    /*! Consent has been denied. */
+    EmporterUserConsentTypeDenied
+};
+
+/*!
+ Determine the user's consent to access Emporter data with an optional prompt.
+ 
+ Emporter must be running in order to prompt and/or determine the user's consent. This method will always return
+ \c EmporterUserConsentTypeGranted when running macOS versions older than 10.14.
+ 
+ \param allowPrompt If true, the user will be prompted (at most once) for consent as needed.
+ \param completionHandler Invoked on the main queue once the user has approved or denied access to control Emporter.
+ 
+ */
+- (void)determineUserConsentWithPrompt:(BOOL)allowPrompt completionHandler:(void(^)(EmporterUserConsentType))completionHandler __attribute__((deprecated));
+
+/*!
+ User consent is used to determine whether or not the current application has access to Emporter data. A prompt asking for permission
+ will be shown automatically for the first invocation, but if denied, will always fail (even after the app restarts).
+ 
+ This is the synchronous version of \c determineUserConsentWithPrompt:completionHandler: but doesn't rely on Apple's event APIs
+ which are known to occasionally cause deadlocks.
+ 
+ \returns The current user consent for accessing Emporter data.
+ */
+@property(nonatomic, readonly) EmporterUserConsentType userConsentType;
+
 #pragma mark - Tunnels
+
+/*!
+ Tunnels expose the tunnels managed by Emporter.
+ 
+ For best performance, SBElementArray should be filtered using NSPredicates.
+ */
+@property (readonly) SBElementArray<EmporterTunnel *> *tunnels;
+
+/*!
+ Find a tunnel to a directory or local HTTP URL.
+ 
+ \param url A file or local HTTP URL.
+ \param outError An optional error pointer if there was a problem interfacing with Emporter.
+ 
+ \returns The tunnel whose source matches the given URL. May be nil.
+ */
+
+- (EmporterTunnel *__nullable)tunnelForURL:(NSURL *)url error:(NSError **__nullable)outError;
+
+/*!
+ Find a tunnel by id.
+ 
+ \param outError An optional error pointer if there was a problem interfacing with Emporter.
+ 
+ \returns The tunnel with the given id. May be nil.
+ */
+
+- (EmporterTunnel *__nullable)tunnelWithIdentifier:(NSString *)identifer error:(NSError **__nullable)outError;
+
+/*!
+ Create a tunnel to a directory or local HTTP server.
+ 
+ \param url The directory or HTTP URL used to provide contents for the tunnel.
+ \param properties Options for configuring tunnels (i.e. name). See \c EmporterTunnel for a list of available properties.
+ \param outError An optional error pointer explaining why the tunnel could not be created.
+ 
+ \returns A new tunnel (prepended to \c tunnels) or nil if the tunnel could not be created.
+ */
+- (EmporterTunnel *__nullable)createTunnelWithURL:(NSURL *)url properties:(NSDictionary *__nullable)properties error:(NSError **__nullable)outError;
+
+/*! Configure a tunnel to a directory or local HTTP server by either showing its existing configuration or prompting the user to configure a new tunnel.
+ 
+ \param url The source directory or HTTP URL used to provide contents for the tunnel.
+ \param outError An optional error pointer if there was a problem interfacing with Emporter.
+ 
+ \returns An existing tunnel or nil.
+ */
+- (EmporterTunnel *__nullable)configureTunnelWithURL:(NSURL *)url error:(NSError **__nullable)outError;
+
+#pragma mark - Service
+
+/*!
+ The state of the connection to the Emporter service.
+ */
+@property (readonly) EmporterServiceState serviceState;
+
+
+/*!
+ The reason the service is in a conflicted state.
+ */
+@property (readonly) NSString *__nullable serviceConflictReason;
+
+/*!
+ If the service is a conflicted state temporarily (i.e. network timeout), a reconnect will be attempted by this date.
+ */
+@property (readonly) NSDate *__nullable nextReconnectDate;
+
+/*!
+ Resume the connection to the service.
+ 
+ The service may not be resumed if there are no tunnels configured. Tunnels will become accessible after the service connects.
+
+ \param outError An optional error pointer if there was a problem interfacing with Emporter.
+
+ \returns True if the service was successfully resumed.
+ */
+- (BOOL)resumeService:(NSError **__nullable)outError;
+
+/*!
+ Suspend the connection to the service.
+ 
+ All tunnels will be taken offline immediately.
+
+ \returns True if the service was successfully suspended.
+ */
+- (BOOL)suspendService:(NSError **__nullable)outError;
+
+@end
+
+#pragma mark - Notifications
 
 /*!
  EmporterDidLaunchNotification is posted when Emporter launches.
@@ -179,98 +272,9 @@ extern NSNotificationName EmporterTunnelConfigurationDidChangeNotification;
 extern NSString *const EmporterTunnelIdentifierUserInfoKey;
 
 /*!
- Tunnels expose the tunnels managed by Emporter.
- 
- For best performance, SBElementArray should be filtered using NSPredicates.
- */
-@property (readonly) SBElementArray<EmporterTunnel *> *tunnels;
-
-/*!
- Find a tunnel to a directory or local HTTP URL.
- 
- \param url A file or local HTTP URL.
- \param outError An optional error pointer if there was a problem interfacing with Emporter.
- 
- \returns The tunnel whose source matches the given URL. May be nil.
- */
-
-- (EmporterTunnel *__nullable)tunnelForURL:(NSURL *)url error:(NSError **__nullable)outError;
-
-/*!
- Find a tunnel by id.
- 
- \param outError An optional error pointer if there was a problem interfacing with Emporter.
- 
- \returns The tunnel with the given id. May be nil.
- */
-
-- (EmporterTunnel *__nullable)tunnelWithIdentifier:(NSString *)identifer error:(NSError **__nullable)outError;
-
-/*!
- Create a tunnel to a directory or local HTTP server.
- 
- \param url The directory or HTTP URL used to provide contents for the tunnel.
- \param properties Options for configuring tunnels (i.e. name). See \c EmporterTunnel for a list of available properties.
- \param outError An optional error pointer explaining why the tunnel could not be created.
- 
- \returns A new tunnel (prepended to \c tunnels) or nil if the tunnel could not be created.
- */
-- (EmporterTunnel *__nullable)createTunnelWithURL:(NSURL *)url properties:(NSDictionary *__nullable)properties error:(NSError **__nullable)outError;
-
-/*! Configure a tunnel to a directory or local HTTP server by either showing its existing configuration or prompting the user to configure a new tunnel.
- 
- \param url The source directory or HTTP URL used to provide contents for the tunnel.
- \param outError An optional error pointer if there was a problem interfacing with Emporter.
- 
- \returns An existing tunnel or nil.
- */
-- (EmporterTunnel *__nullable)configureTunnelWithURL:(NSURL *)url error:(NSError **__nullable)outError;
-
-#pragma mark - Service
-
-/*!
  EmporterServiceStateDidChangeNotification is posted when the connection to the Emporter service changes.
  */
 extern NSNotificationName EmporterServiceStateDidChangeNotification;
-
-
-/*!
- The state of the connection to the Emporter service.
- */
-@property (readonly) EmporterServiceState serviceState;
-
-
-/*!
- The reason the service is in a conflicted state.
- */
-@property (readonly) NSString *__nullable serviceConflictReason;
-
-/*!
- If the service is a conflicted state temporarily (i.e. network timeout), a reconnect will be attempted by this date.
- */
-@property (readonly) NSDate *__nullable nextReconnectDate;
-
-/*!
- Resume the connection to the service.
- 
- The service may not be resumed if there are no tunnels configured. Tunnels will become accessible after the service connects.
-
- \param outError An optional error pointer if there was a problem interfacing with Emporter.
-
- \returns True if the service was successfully resumed.
- */
-- (BOOL)resumeService:(NSError **__nullable)outError;
-
-/*!
- Suspend the connection to the service.
- 
- All tunnels will be taken offline immediately.
-
- \returns True if the service was successfully suspended.
- */
-- (BOOL)suspendService:(NSError **__nullable)outError;
-
-@end
 
 #pragma mark -
 
