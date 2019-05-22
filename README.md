@@ -14,11 +14,11 @@ It's recommended to add this repo as a submodule to your project so you can easi
 
 ## Documentation
 
-The main header [Emporter.h](https://github.com/mikepulaski/EmporterKit/blob/master/EmporterKit/Emporter.h) integrates with Xcode's Quick Help. After importing `EmporterKit` into your project, you should be able navigate through the documentation whenever using referencing the `Emporter` namespace.
+The main header [Emporter.h](https://github.com/youngdynasty/EmporterKit/blob/master/EmporterKit/Emporter.h) integrates with Xcode's Quick Help. After importing `EmporterKit` into your project, you should be able navigate through the documentation whenever using referencing the `Emporter` namespace.
 
 ## License
 
-BSD 3 Clause. See [LICENSE](https://github.com/mikepulaski/EmporterKit/blob/master/LICENSE).
+BSD 3 Clause. See [LICENSE](https://github.com/youngdynasty/EmporterKit/blob/master/LICENSE).
 
 ---
 
