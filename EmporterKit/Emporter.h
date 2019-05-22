@@ -290,14 +290,14 @@ extern NSNotificationName EmporterServiceStateDidChangeNotification;
 + (NSPredicate *)tunnelPredicateForPort:(NSNumber *)port;
 
 /*!
- A predicate to filter tunnels by their source URL. The source URL can be a directory or local web address, in which case
- the URL's host and port will be used for matching.
+ A predicate to filter tunnels by their source URL, or remote URL. The source URL can be a directory or local web address,
+ in which case the URL's host and port will be used for matching.
  
  Predicates provide the most efficient way to query tunnels from Emporter (as they are evaluated only one time between processes).
  
  \returns A predicate to filter tunnels by source URL.
  */
-+ (NSPredicate *)tunnelPredicateForSourceURL:(NSURL *)sourceURL;
++ (NSPredicate *)tunnelPredicateForURL:(NSURL *)url;
 
 @end
 

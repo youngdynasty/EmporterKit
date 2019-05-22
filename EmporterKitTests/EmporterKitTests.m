@@ -116,6 +116,42 @@
 
     resolvedTunnel = [emporter tunnelForURL:[NSURL URLWithString:@"http://virtual-host-not-found:2019"] error:NULL];
     XCTAssertNil(resolvedTunnel, "unexpected resolved tunnel");
+    
+}
+
+- (void)testTunnelResolveRemoteURL {
+    Emporter *emporter = [[Emporter alloc] init];
+    NSURL *localURL = [NSURL URLWithString:@"http://local.dev:2019"];
+    EmporterTunnel *tunnel = [emporter createTunnelWithURL:localURL properties:nil error:NULL];
+    
+    XCTestExpectation *connectExpectation = [self expectationWithDescription:@"connect"];
+    
+    id tunnelStatusObserver = [[NSNotificationCenter defaultCenter] addObserverForName:EmporterTunnelStateDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        XCTAssertEqualObjects(tunnel.id, note.userInfo[EmporterTunnelIdentifierUserInfoKey], @"Unexpected tunnel");
+        
+        if (tunnel.state == EmporterTunnelStateConnected) {
+            [connectExpectation fulfill];
+        }
+    }];
+    
+    [self addTeardownBlock:^{
+        [[NSNotificationCenter defaultCenter] removeObserver:tunnelStatusObserver];
+    }];
+    
+    [emporter resumeService:NULL];
+    
+    [self waitForExpectationsWithTimeout:5 handler:nil];
+    
+    NSURL *remoteURL = [NSURL URLWithString:tunnel.remoteUrl];
+    XCTAssertNotNil(remoteURL);
+    
+    for (NSString *urlString in @[
+                                  [NSString stringWithFormat:@"http://%@", remoteURL.host],
+                                  [NSString stringWithFormat:@"https://%@", remoteURL.host],
+                                  [NSString stringWithFormat:@"https://%@/some/path", remoteURL.host]
+                                  ]) {
+        XCTAssertNotNil([emporter tunnelForURL:([NSURL URLWithString:urlString]) error:NULL], @"%@", urlString);
+    }
 }
 
 - (void)testTunnelWithFileURL {

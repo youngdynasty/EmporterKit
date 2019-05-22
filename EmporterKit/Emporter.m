@@ -348,7 +348,7 @@ static void _NOOP(void *info) {}
 
 - (EmporterTunnel *)tunnelForURL:(NSURL *)url error:(NSError **)outError {
     // Use predicate for best performance
-    NSPredicate *filter = [Emporter tunnelPredicateForSourceURL:url];
+    NSPredicate *filter = [Emporter tunnelPredicateForURL:url];
     EmporterTunnel *tunnel = [[[_application tunnels] filteredArrayUsingPredicate:filter] firstObject];
     
     if (outError != NULL) {
@@ -486,9 +486,14 @@ BOOL IsEmporterAPIAvailable(EmporterVersion version, int major, int minor) {
     return [NSPredicate predicateWithFormat:@"proxyPort == %@", port];
 }
 
-+ (NSPredicate *)tunnelPredicateForSourceURL:(NSURL *)url {
++ (NSPredicate *)tunnelPredicateForURL:(NSURL *)url {
     if ([url isFileURL]) {
         return [NSPredicate predicateWithFormat:@"directory == %@", url.URLByStandardizingPath];
+    } else if ([url.host ?: @"" containsString:@".emporter."]) {
+        NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:YES];
+        components.scheme = @"https";
+        components.path = nil;
+        return [NSPredicate predicateWithFormat:@"remoteUrl == %@", components.URL];
     } else {
         NSPredicate *portFilter = [self tunnelPredicateForPort:url.port];
         NSPredicate *hostFilter = nil;
