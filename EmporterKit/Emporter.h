@@ -52,13 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) NSURL *bundleURL;
 
 /*!
- The bundle identifier of Emporter.
- 
- \returns The bundle identifier of Emporter.
- */
-@property (readonly) NSString *bundleIdentifier;
-
-/*!
  Activate the current running instance of Emporter.
  */
 - (void)activate;
@@ -177,6 +170,37 @@ typedef NS_OPTIONS(NSUInteger, EmporterUserConsentType) {
  \returns An existing tunnel or nil.
  */
 - (EmporterTunnel *__nullable)configureTunnelWithURL:(NSURL *)url error:(NSError **__nullable)outError;
+
+/*! Bind a temporary tunnel's lifecycle to a running pid.
+ 
+ \param tunnel The tunnel which should terminate along with a pid.
+ \param pid The pid which must be running while the tunnel is active.
+ \param outError An optional error pointer if there was a problem binding the Tunnel.
+ 
+ \returns YES upon success.
+ */
+- (BOOL)bindTunnel:(EmporterTunnel *)tunnel toPid:(pid_t)pid error:(NSError **__nullable)outError;
+
+/*! Unbind a temporary tunnel's lifecycle to a running pid.
+ 
+ \param tunnel The tunnel which should terminate along with a pid.
+ \param pid The pid which must be running while the tunnel is active.
+ \param outError An optional error pointer if there was a problem unbinding the Tunnel.
+ 
+ \returns YES upon success.
+ */
+- (BOOL)unbindTunnel:(EmporterTunnel *)tunnel fromPid:(pid_t)pid error:(NSError **__nullable)outError;
+
+/*! Protect a tunnel with HTTP auth (unless it is already protected).
+ 
+ \param tunnel The tunnel to password protect.
+ \param username The username for HTTP auth.
+ \param password The password for HTTP auth.
+ \param outError An optional error pointer if there was a problem unbinding the Tunnel.
+ 
+ \returns YES upon success.
+ */
+- (BOOL)protectTunnel:(EmporterTunnel *)tunnel withUsername:(NSString *)username password:(NSString *)password error:(NSError **__nullable)outError;
 
 #pragma mark - Service
 
@@ -323,9 +347,22 @@ typedef struct _EmporterVersion {
 /*!
  Get the current version of Emporter (without requiring it to be open).
  
+ If invoked from within a sandboxed environment, it's possible that this method will fail (as the application bundle may not be readable).
+ In other words, an empty version does not imply that Emporter is not installed.
+ 
  \returns True if Emporter is installed and the version was extracted.
  */
 + (BOOL)getVersion:(EmporterVersion *)version;
+
+/*!
+ Check if the current running version of Emporter can handle methods for a given API version.
+ 
+ \param major The major API version
+ \param minor The minor API version
+ 
+ \returns True if Emporter responds to the given API version.
+ */
+- (BOOL)respondsToAPIVersion:(int)major minor:(int)minor;
 
 @end
 

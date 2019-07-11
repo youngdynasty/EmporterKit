@@ -28,9 +28,9 @@ NSString *const EmporterTunnelIdentifierUserInfoKey = @"EmporterTunnelIdentifier
 @property(nonatomic,weak) Emporter *emporter;
 @end
 
-
 @implementation Emporter {
     _EmporterLogger *_logger;
+    EmporterVersion *_version;
 }
 @synthesize _application = _application;
 @synthesize bundleURL = _bundleURL;
@@ -148,12 +148,14 @@ static NSURL *_fixedBundleURL = nil;
 
 - (instancetype)init {
     NSURL *bundleURL = [Emporter _bundleURL];
-    NSString *bundleIdentifier = [Emporter _bundleIdentifier];
-    if (bundleURL == nil || bundleIdentifier == nil)
+    if (bundleURL == nil)
         return nil;
     
     EmporterApplication *application = [SBApplication applicationWithURL:bundleURL];
-    if (application == nil)
+    
+    // Apple's documentation states that SBApplication will be nil if the scripting definition doesn't load, but that's not the reality.
+    // As a workaround, we need to test if the application is not nil and that it responds to arbitrary messages defined in our sdef.
+    if (application == nil || ![application respondsToSelector:@selector(tunnels)])
         return nil;
     
     self = [super init];
@@ -167,7 +169,6 @@ static NSURL *_fixedBundleURL = nil;
     _application.delegate = _logger; // delegate is strong (!)
     
     _bundleURL = bundleURL;
-    _bundleIdentifier = bundleIdentifier;
     
     for (NSNotificationName name in @[EmporterServiceStateDidChangeNotification, EmporterTunnelStateDidChangeNotification, EmporterTunnelConfigurationDidChangeNotification, EmporterDidAddTunnelNotification, EmporterDidRemoveTunnelNotification]) {
         [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(_dispatchNotification:) name:name object:nil];
@@ -235,7 +236,7 @@ static NSURL *_fixedBundleURL = nil;
             return EmporterUserConsentTypeUnknown;
         }
         
-        NSAppleEventDescriptor *emporterAppDescriptor = [NSAppleEventDescriptor descriptorWithBundleIdentifier:_bundleIdentifier];
+        NSAppleEventDescriptor *emporterAppDescriptor = [NSAppleEventDescriptor descriptorWithApplicationURL:_bundleURL];
         OSStatus status = AEDeterminePermissionToAutomateTarget(emporterAppDescriptor.aeDesc, typeWildCard, typeWildCard, prompt);
         
         switch (status) {
@@ -393,6 +394,39 @@ static void _NOOP(void *info) {}
     return [_application tunnels];
 }
 
+- (BOOL)protectTunnel:(EmporterTunnel *)tunnel withUsername:(NSString *)username password:(NSString *)password error:(NSError **__nullable)outError {
+    BOOL isSupported = [self respondsToAPIVersion:0 minor:2];
+    BOOL retVal = isSupported ? [tunnel passwordProtectWithUsername:username password:password] : NO;
+    
+    if (outError != NULL) {
+        (*outError) = isSupported ? tunnel.lastError : [NSError errorWithDomain:NSPOSIXErrorDomain code:ENOTSUP userInfo:nil];
+    }
+    
+    return retVal;
+}
+
+- (BOOL)bindTunnel:(EmporterTunnel *)tunnel toPid:(pid_t)pid error:(NSError **__nullable)outError {
+    BOOL isSupported = [self respondsToAPIVersion:0 minor:3];
+    BOOL retVal = isSupported ? [tunnel bindToPid:pid] : NO;
+
+    if (outError != NULL) {
+        (*outError) = isSupported ? tunnel.lastError : [NSError errorWithDomain:NSPOSIXErrorDomain code:ENOTSUP userInfo:nil];
+    }
+    
+    return retVal;
+}
+
+- (BOOL)unbindTunnel:(EmporterTunnel *)tunnel fromPid:(pid_t)pid error:(NSError **__nullable)outError {
+    BOOL isSupported = [self respondsToAPIVersion:0 minor:3];
+    BOOL retVal = isSupported ? [tunnel unbindFromPid:pid] : NO;
+    
+    if (outError != NULL) {
+        (*outError) = isSupported ? tunnel.lastError : [NSError errorWithDomain:NSPOSIXErrorDomain code:ENOTSUP userInfo:nil];
+    }
+    
+    return retVal;
+}
+
 #pragma mark -
 
 - (EmporterApplication *)_application {
@@ -408,7 +442,7 @@ static void _NOOP(void *info) {}
     
     if ([@[NSWorkspaceDidLaunchApplicationNotification, NSWorkspaceDidTerminateApplicationNotification] containsObject:notification.name]) {
         NSRunningApplication *application = notification.userInfo[NSWorkspaceApplicationKey];
-        if ([application.bundleIdentifier isEqualToString:_bundleIdentifier]) {
+        if ([application.bundleURL isEqual:_bundleURL]) {
             NSNotificationName name = self.isRunning ? EmporterDidLaunchNotification : EmporterDidTerminateNotification;
             [[NSNotificationCenter defaultCenter] postNotificationName:name object:self userInfo:nil];
         }
@@ -441,10 +475,32 @@ static void _NOOP(void *info) {}
         return NO;
     }
     
-    
-    NSString *versionString = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-    NSArray<NSString*> *versionComponents = [(versionString ?: @"0.0.0") componentsSeparatedByString:@"."];
+    NSString *bundleVersion = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    NSString *buildNumber = [bundle objectForInfoDictionaryKey:(__bridge NSString *)kCFBundleVersionKey];
+    NSString *apiVersion = [bundle objectForInfoDictionaryKey:@"EMAPIVersionString"];
 
+    _EmporterVersionParse(version, (bundleVersion ?: @"0.0.0"), (buildNumber ?: @"1"), (apiVersion ?: @"0.1.0"));
+    
+    return YES;
+}
+
+- (BOOL)respondsToAPIVersion:(int)major minor:(int)minor {
+    if (_version == nil) {
+        NSString *apiVersion = _application.apiVersion;
+        
+        if (apiVersion != nil) {
+            EmporterVersion v;
+            _EmporterVersionParse(&v, @"0.0.0", @"0", apiVersion);
+            _version = &v;
+        }
+    }
+    
+    return _version != nil ? IsEmporterAPIAvailable((*_version), major, minor) : NO;
+}
+
+static void _EmporterVersionParse(EmporterVersion *version, NSString *bundleVersion, NSString *buildNumber, NSString *apiVersion) {
+    NSArray<NSString*> *versionComponents = [bundleVersion componentsSeparatedByString:@"."];
+    
     if (versionComponents.count >= 2) {
         version->major = MAX(0, [versionComponents[0] integerValue]);
         version->minor = MAX(0, [versionComponents[1] integerValue]);
@@ -454,8 +510,7 @@ static void _NOOP(void *info) {}
         }
     }
     
-    NSString *apiString = [bundle objectForInfoDictionaryKey:@"EMAPIVersionString"];
-    NSArray *apiComponents = [(apiString ?: @"0.1.0") componentsSeparatedByString:@"."];
+    NSArray *apiComponents = [apiVersion componentsSeparatedByString:@"."];
     
     if (apiComponents.count >= 2) {
         version->api.major = MAX(0, [apiComponents[0] integerValue]);
@@ -466,10 +521,7 @@ static void _NOOP(void *info) {}
         }
     }
     
-    NSString *buildNumberString = [bundle objectForInfoDictionaryKey:(__bridge NSString *)kCFBundleVersionKey];
-    version->buildNumber = MAX(0, [(buildNumberString ?: @"1") integerValue]);
-    
-    return YES;
+    version->buildNumber = MAX(0, [buildNumber integerValue]);
 }
 
 @end

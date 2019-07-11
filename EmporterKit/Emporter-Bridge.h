@@ -106,6 +106,8 @@ typedef enum EmporterTunnelState EmporterTunnelState;
 
 - (void) edit;  // Edit a tunnel's settings
 - (BOOL) passwordProtectWithUsername:(NSString *)username password:(NSString *)password;  // Password protect a tunnel, unless it's already protected
+- (BOOL) bindToPid:(NSInteger)pid;  // Bind a tunnel to another running process so that it is removed when the process terminates.
+- (BOOL) unbindFromPid:(NSInteger)pid;  // Unbind a tunnel from a running process so that it is not removed when the process terminates.
 
 @end
 
