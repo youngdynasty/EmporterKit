@@ -44,7 +44,13 @@ NSString *const EmporterTunnelIdentifierUserInfoKey = @"EmporterTunnelIdentifier
 }
 
 + (BOOL)isInstalled {
-    return [self _bundleIdentifier] != nil;
+    for (NSString *bundleId in [self _bundleIds]) {
+        if ([[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:bundleId] != nil) {
+            return YES;
+        }
+    }
+
+    return NO;
 }
 
 + (NSURL *)appStoreURL {
@@ -118,20 +124,6 @@ static NSURL *_fixedBundleURL = nil;
         
         return order;
     }] firstObject];
-}
-
-+ (NSString *)_bundleIdentifier {
-    NSURL *bundleURL = [self _bundleURL];
-    if (bundleURL == nil) {
-        return nil;
-    }
-    
-    NSBundle *bundle = [NSBundle bundleWithURL:bundleURL];
-    if (bundle == nil || bundle.bundleIdentifier == nil) {
-        return nil;
-    }
-    
-    return [[self _bundleIds] containsObject:bundle.bundleIdentifier] ? bundle.bundleIdentifier : nil;
 }
 
 + (NSArray <NSRunningApplication *> *)_runningApplications {
