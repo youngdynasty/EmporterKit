@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  \returns True if an instance of Emporter is running.
  */
-@property (readonly) BOOL isRunning;
+@property (class,readonly) BOOL isRunning;
 
 /*!
  The bundle URL of Emporter.

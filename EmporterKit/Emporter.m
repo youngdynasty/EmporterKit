@@ -136,6 +136,20 @@ static NSURL *_fixedBundleURL = nil;
     return [apps copy];
 }
 
+
++ (BOOL)isRunning {
+    NSArray *runningInstances = [self _runningApplications];
+    NSURL *bundleURL = [Emporter _bundleURL];
+    
+    if (bundleURL != nil) {
+        runningInstances = [runningInstances filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSRunningApplication *instance, NSDictionary<NSString *,id> * _Nullable bindings) {
+            return [instance.bundleURL isEqual:bundleURL];
+        }]];
+    }
+    
+    return runningInstances.count > 0;
+}
+
 #pragma mark -
 
 - (instancetype)init {
@@ -185,10 +199,6 @@ static NSURL *_fixedBundleURL = nil;
     [_application quit];
 }
 
-- (BOOL)isRunning {
-    return [_application isRunning];
-}
-
 - (EmporterUserConsentType)userConsentType {
     // Send an apple event which will fail if we don't have permissions (but will automatically prompt the user if appropriate).
     // The reason this is implemented in such a way is because there were random, unpredictable deadlocks when using the user
@@ -224,7 +234,7 @@ static NSURL *_fixedBundleURL = nil;
 
 - (EmporterUserConsentType)_determineUserConsentTypeWithPrompt:(BOOL)prompt {
     if (@available(macOS 10.14, *)) {
-        if (![self isRunning]) {
+        if (!_application.isRunning) {
             return EmporterUserConsentTypeUnknown;
         }
         
@@ -435,7 +445,7 @@ static void _NOOP(void *info) {}
     if ([@[NSWorkspaceDidLaunchApplicationNotification, NSWorkspaceDidTerminateApplicationNotification] containsObject:notification.name]) {
         NSRunningApplication *application = notification.userInfo[NSWorkspaceApplicationKey];
         if ([application.bundleURL isEqual:_bundleURL]) {
-            NSNotificationName name = self.isRunning ? EmporterDidLaunchNotification : EmporterDidTerminateNotification;
+            NSNotificationName name = _application.isRunning ? EmporterDidLaunchNotification : EmporterDidTerminateNotification;
             [[NSNotificationCenter defaultCenter] postNotificationName:name object:self userInfo:nil];
         }
         
