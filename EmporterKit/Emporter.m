@@ -30,7 +30,6 @@ NSString *const EmporterTunnelIdentifierUserInfoKey = @"EmporterTunnelIdentifier
 
 @implementation Emporter {
     _EmporterLogger *_logger;
-    EmporterVersion *_version;
 }
 @synthesize _application = _application;
 @synthesize bundleURL = _bundleURL;
@@ -412,7 +411,11 @@ static void _NOOP(void *info) {}
     BOOL retVal = isSupported ? [tunnel bindToPid:pid] : NO;
 
     if (outError != NULL) {
-        (*outError) = isSupported ? tunnel.lastError : [NSError errorWithDomain:NSPOSIXErrorDomain code:ENOTSUP userInfo:nil];
+        if (retVal) {
+            (*outError) = nil;
+        } else {
+            (*outError) = tunnel.lastError ?: [NSError errorWithDomain:NSPOSIXErrorDomain code:ENOTSUP userInfo:nil];
+        }
     }
     
     return retVal;
@@ -487,17 +490,9 @@ static void _NOOP(void *info) {}
 }
 
 - (BOOL)respondsToAPIVersion:(int)major minor:(int)minor {
-    if (_version == nil) {
-        NSString *apiVersion = _application.apiVersion;
-        
-        if (apiVersion != nil) {
-            EmporterVersion v;
-            _EmporterVersionParse(&v, @"0.0.0", @"0", apiVersion);
-            _version = &v;
-        }
-    }
-    
-    return _version != nil ? IsEmporterAPIAvailable((*_version), major, minor) : NO;
+    EmporterVersion version;
+    _EmporterVersionParse(&version, @"0.0.0", @"1", _application.apiVersion ?: @"0.1.0");    
+    return IsEmporterAPIAvailable(version, major, minor);
 }
 
 static void _EmporterVersionParse(EmporterVersion *version, NSString *bundleVersion, NSString *buildNumber, NSString *apiVersion) {
